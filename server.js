@@ -1,7 +1,7 @@
 const mysql = require("mysql");
 const inquirer = require("inquirer");
 const express = require("express");
-const cTable = require("console.table")
+const cTable = require("console.table");
 
 const connection = mysql.createConnection({
   host: "localhost",
@@ -14,37 +14,65 @@ const connection = mysql.createConnection({
 
   // Your password
   password: "",
-  database: "employee_trackerDB"
+  database: "employee_trackerDB",
 });
 
-connection.connect(function(err) {
-  if (err) throw err;
-  console.log("connected as id " + connection.threadId);
-  connection.end();
-});
-
-async function start() {
-  const choice = await inquirer
-  .prompt([
-    {
-      type: "list",
-      name: "choice",
-      message: "What would you like to do?",
-      choices: ["eat bread", 2, "go play"]
-    }
-  ]);
-  console.log(choice);
-}
-start();
-
-inquirer.prompt([
-  {
-    type: "list",
-    name: "choice",
-    message: "What would you like to do?",
-    choices: ["View all employees", "View all departments", "Add employee"]
+connection.connect(function (err) {
+  if (err) {
+    console.log("connected as id " + connection.threadId);
+    connection.end();
+    return;
   }
-])
-if (choice.choice === "Add employee") {
-  const employee = await prompt(questions);
+  startPrompt();
+});
+
+function startPrompt() {
+  inquirer.prompt(start).then(function (answers) {
+    questionsArray(answers.select);
+  });
+}
+
+const start = {
+  type: "list",
+  name: "select",
+  message: "What would you like to do?",
+  choices: [
+    "View all employees",
+    "View all departments",
+    "View all roles",
+    "Add employee",
+    "Add department",
+    "Add role",
+    "Update Employee Role",
+    "Exit",
+  ],
+};
+
+function questionsArray(select) {
+  switch (select) {
+    case "View all employees":
+      viewTable("Employee");
+      break;
+    case "View all departments":
+      viewTable("Deparments");
+      break;
+    case "View all roles":
+      viewTable("Roles");
+      break;
+    case "View all departments":
+      viewTable("Deparments");
+      break;
+    case "View all departments":
+      viewTable("Deparments");
+      break;
+    case "View all departments":
+      viewTable("Deparments");
+      break;
+    case "View all departments":
+      viewTable("Deparments");
+      break;
+    case "View all departments":
+      viewTable("Deparments");
+      break;
+  }
 }
