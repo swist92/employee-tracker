@@ -1,8 +1,6 @@
 const mysql = require("mysql");
 const inquirer = require("inquirer");
-const express = require("express");
 const util = require("util");
-const cTable = require("console.table");
 
 const connection = mysql.createConnection({
   host: "localhost",
@@ -52,13 +50,13 @@ const start = {
 function questionsArray(userSelect) {
   switch (userSelect) {
     case "View all employees":
-      displayTable("Employees");
+      displayTable("employee");
       break;
     case "View all departments":
-      displayTable("Departments");
+      displayTable("department");
       break;
     case "View all roles":
-      displayTable("Roles");
+      displayTable("role");
       break;
     case "Add employee":
       addEmployee();
@@ -95,25 +93,6 @@ function displayTable(name) {
     case "role":
       query = queryRole;
       break;
-    case "Add employee":
-      query = queryAddEmployee;
-      addEmployee(name);
-      break;
-    case "Add department":
-      query = queryAddDepartment;
-      addDepartment(name);
-      break;
-    case "Add role":
-      query = queryAddRole;
-      addRole(name);
-      break;
-    case "Update employee role":
-      query = queryUpdateEmployee;
-      updateEmployee(name);
-      break;
-    case "Exit":
-      exitArray();
-      break;
   }
   connection.query(query, function (err, res) {
     console.table(res);
@@ -137,11 +116,11 @@ function addEmployee() {
     for (var i = 0; i < res.length; i++) {
       managerList.push(res[i].first_name + " " + res[i].last_name);
     }
-    addEmployee(roleList, managerList);
+    addEmployeeID(roleList, managerList);
   });
 }
 
-async function addEmployee(roleList, managerList) {
+async function addEmployeeID(roleList, managerList) {
   const answer = await inquirer.prompt([
     {
       name: "firstName",
@@ -189,6 +168,7 @@ async function addEmployee(roleList, managerList) {
       function (err, res) {
         if (err) throw err;
         startPrompt();
+        ``;
       }
     );
   }
@@ -203,11 +183,11 @@ function updateEmployeeManager() {
     for (var i = 0; i < res.length; i++) {
       employeeList.push(res[i].first_name + " " + res[i].last_name);
     }
-    updateEmployeeManager(employeeList);
+    updateEmployeeManagerID(employeeList);
   });
 }
 
-async function updateEmployeeManager(employeeList) {
+async function updateEmployeeManagerID(employeeList) {
   let answer = await inquirer.prompt([
     {
       name: "employee",
@@ -237,7 +217,7 @@ async function updateEmployeeManager(employeeList) {
   );
 }
 
-function updateEmployee() {
+function updateEmployeeRole() {
   let employeeList = [];
   let roleList = [];
   connection.query("select title from role", function (err, res) {
@@ -252,22 +232,22 @@ function updateEmployee() {
     for (var i = 0; i < res.length; i++) {
       employeeList.push(res[i].first_name + " " + res[i].last_name);
     }
-    updateEmployeeRole(employeeList, roleList);
+    updateEmployeeRoleID(employeeList, roleList);
   });
 }
 
-async function updateEmployeeRole(employeeList, roleList) {
+async function updateEmployeeRoleID(employeeList, roleList) {
   let answer = await inquirer.prompt([
     {
       name: "employee",
       type: "list",
-      message: "Select employee to update?",
+      message: "Which employee do you want to update?",
       choices: employeeList,
     },
     {
       name: "role",
       type: "list",
-      message: "Select employee's role",
+      message: "What is this employee's role?",
       choices: roleList,
     },
   ]);
@@ -307,11 +287,11 @@ function addRole() {
     for (var i = 0; i < res.length; i++) {
       departmentList.push(res[i].name);
     }
-    addRole(departmentList);
+    addRoleID(departmentList);
   });
 }
 
-async function addRole(departmentList) {
+async function addRoleID(departmentList) {
   const answer = await inquirer.prompt([
     {
       name: "department",
