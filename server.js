@@ -1,8 +1,8 @@
 const mysql = require("mysql");
 const inquirer = require("inquirer");
-const express = require("express");
+// const express = require("express");
 const util = require("util");
-const cTable = require("console.table");
+// const cTable = require("console.table");
 
 const connection = mysql.createConnection({
   host: "localhost",
@@ -18,14 +18,14 @@ const connection = mysql.createConnection({
   database: "employee_trackerDB",
 });
 
-connection.connect((function (err) {
+connection.connect(function (err) {
   if (err) {
     console.err("connected as id " + connection.threadId);
     connection.end();
     return;
   }
   startPrompt();
-}));
+});
 
 function startPrompt() {
   inquirer.prompt(start).then(function (answers) {
@@ -34,9 +34,9 @@ function startPrompt() {
 }
 
 const start = {
-  type: 'list',
-  name: 'userSelect',
-  message: 'What would you like to do?',
+  type: "list",
+  name: "userSelect",
+  message: "Choose one of the below",
   choices: [
     "View all employees",
     "View all departments",
@@ -45,8 +45,8 @@ const start = {
     "Add department",
     "Add role",
     "Update Employee Role",
-    "Exit"
-  ]
+    "Update Employee Manager",
+  ],
 };
 
 function questionsArray(userSelect) {
@@ -55,7 +55,7 @@ function questionsArray(userSelect) {
       viewInput("Employee");
       break;
     case "View all departments":
-      viewInput("Deparments");
+      viewInput("Departments");
       break;
     case "View all roles":
       viewInput("Roles");
@@ -64,7 +64,7 @@ function questionsArray(userSelect) {
       addInput("addEmployee");
       break;
     case "Add department":
-      addInput("addDeparments");
+      addInput("addDepartments");
       break;
     case "Add role":
       addInput("addRole");
@@ -72,38 +72,33 @@ function questionsArray(userSelect) {
     case "Update employee role":
       updateInput("updateRole");
       break;
-    case "Exit":
-      exitArray();
+    case "Update Employee Manager":
+      updateEmployeeManager();
       break;
   }
 }
 
 function viewInput(name) {
-  let queryEmployee =
-  'SELECT e.id,e.first_name, e.last_name, role.title, department.name AS "dept", role.salary,\n\
-  CONCAT(m.first_name,"", m.last_name) AS "manager",\n\
-  FROM employee AS e LEFT JOIN employee AS m ON m.id = e.manager_id,\n\
-  INNER JOIN role ON e.role_id = role.id INNER JOIN dept ON role.department_id = department_id';
+  let queryEmployee = 'SELECT e.id,e.first_name, e.last_name, role.title, department.name AS "dept", role.salary, CONCAT(m.first_name,"", m.last_name) AS "manager", FROM employee AS e LEFT JOIN employee AS m ON m.id = e.manager_id, INNER JOIN role ON e.role_id = role.id INNER JOIN dept ON role.department_id = department_id';
 
   let queryDepartment = 'SELECT * FROM department';
 
-  let queryRole =
-    'SELECT role.id, role.title, role.salary, department.name FROM role INNER JOIN department ON role.department_id = department';
+  let queryRole = 'SELECT role.id, role.title, role.salary, department.name FROM role INNER JOIN department ON role.department_id = department';
 
   let query = "";
 
   switch (name) {
     case "Employee":
       query = queryEmployee;
-      viewInput(name);
+      userInput(name);
       break;
     case "Departments":
       query = queryDepartment;
-      viewInput(name);
+      userInput(name);
       break;
     case "Role":
       query = queryRole;
-      viewInput(name);
+      userInput(name);
       break;
     case "Add employee":
       query = queryAddEmployee;
@@ -123,14 +118,12 @@ function viewInput(name) {
       break;
     case "Exit":
       exitArray();
-      break; 
+      break;
   }
+ connection.query(query, function (err, res) {
+   console.table(res);
+   startPrompt();
+ }); 
 };
 
-// function addEmployee() {
-//   let queryAddEmployee = ;
-//   let queryUpdateEmployee = ;
-//   let queryAddRole = ;
-// };
 
-// function 
