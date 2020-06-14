@@ -19,69 +19,69 @@ connection.connect(function (err) {
         console.error("error connecting: " + err.stack);
         return;
     }
-    frontAction();
+    startPrompt();
 });
 
-function frontAction() {
-    inquirer.prompt(frontPrompt)
+function startPrompt() {
+    inquirer.prompt(questionsArray)
         .then(function (answer) {
-            executeFunctions(answer.action);
+            beginFunction(answer.questions);
         });
 }
 
-const frontPrompt = {
+const questionsArray = {
     type: 'list',
-    name: 'action',
-    message: "What would you like to do?",
+    name: 'questions',
+    message: "Choose one",
     choices: [
-        "View All Employees",
-        "View All Departments",
-        "View All Roles",
-        "Add Employee",
-        "Update Employee Role",
-        "Update Employee Manager",
-        "Add Department",
-        "Add Role",
+        "View employees",
+        "View departments",
+        "View roles",
+        "Add employee",
+        "Update employee role",
+        "Update employee manager",
+        "Add department",
+        "Add role",
     ]
 };
 
-function executeFunctions(action) {
-    switch (action) {
-        case "View All Employees":
-            viewTable("employee");
+function beginFunction(questions) {
+    switch (questions) {
+        case "View employees":
+            displayTable("employee");
             break;
 
-        case "View All Departments":
-            viewTable("department");
+        case "View departments":
+            displayTable("department");
             break;
 
-        case "View All Roles":
-            viewTable("role");
+        case "View roles":
+            displayTable("role");
             break;
 
-        case "Add Employee":
+        case "Add employee":
             addEmployee();
             break;
 
-        case "Update Employee Role":
+        case "Update employee role":
             updateEmployeeRole();
             break;
 
-        case "Update Employee Manager":
+        case "Update employee manager":
             updateEmployeeManager();
             break;
 
-        case "Add Department":
+        case "Add department":
             addDepartment();
             break;
 
-        case "Add Role":
+        case "Add role":
             addRole();
             break;
     }
 }
 
-function viewTable(name) {
+function displayTable(name) {
     let queryEmployee = "select e.id, e.first_name, e.last_name, role.title, department.name as \"department\", role.salary, concat(m.first_name,\" \",m.last_name) as \"manager\" from employee as e left join employee as m on m.id=e.manager_id inner join role on e.role_id=role.id inner join department on role.department_id=department.id";
     let queryDepartment = "select * from department";
     let queryRole = "select role.id, role.title, role.salary, department.name from role inner join department on role.department_id=department.id";
@@ -99,7 +99,7 @@ function viewTable(name) {
     }
     connection.query(query, function (err, res) {
         console.table(res);
-        frontAction();
+        startPrompt();
     });
 };
 
@@ -149,14 +149,14 @@ async function addEmployeeSupp(roleList, managerList) {
         let query = "insert into employee (first_name, last_name, role_id, manager_id) values (?,?,(select id from role where title =?), null)";
         connection.query(query, [answer.firstName, answer.lastName, answer.role], function (err, res) {
             if (err) throw err;
-            frontAction();
+            startPrompt();
         });
     } else {
         const manager = answer.manager.split(" ");
         let query = "insert into employee (first_name, last_name, role_id, manager_id) values (?,?,(select id from role where title=?), (select id from ( select * from employee) as t where first_name = ? and last_name = ? ))";
         connection.query(query, [answer.firstName, answer.lastName, answer.role, manager[0], manager[1]], function (err, res) {
             if (err) throw err;
-            frontAction();
+            startPrompt();
         });
     }
 }
@@ -192,7 +192,7 @@ async function updateEmployeeManagerSupp(employeeList) {
     let query = "update employee set manager_id = (select id from ( select * from employee) as t where first_name =? and last_name=?) where first_name=? and last_name=?"
     connection.query(query, [manager[0], manager[1], employee[0], employee[1]], function (err, res) {
         if (err) throw err;
-        frontAction();
+        startPrompt();
     });
 };
 
@@ -229,7 +229,7 @@ async function updateEmployeeRoleSupp(employeeList, roleList) {
     let employee = answer.employee.split(" ");
     let query = "update employee set role_id = (select id from role where title =?)  where first_name=? and last_name=?";
     connection.query(query, [answer.role, employee[0], employee[1]], function (err, res) {
-        frontAction();
+        startPrompt();
     })
 }
 
@@ -244,7 +244,7 @@ function addDepartment() {
                 [answer.name]
             ];
             connection.query("insert into department (name) values ?", [value], function (err, res) {
-                frontAction();
+                startPrompt();
             });
         });
 };
@@ -280,6 +280,6 @@ async function addRoleSupp(departmentList) {
     let finalQuery = "insert into role (title,salary,department_id) value (?,?, (select id from department where name=?))";
     connection.query(finalQuery, [answer.title, parseInt(answer.salary), answer.department], function (err, res) {
         if (err) throw err;
-        frontAction();
+        startPrompt();
     });
 }
