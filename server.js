@@ -205,8 +205,7 @@ async function updateEmployeeManagerID(employeeList) {
   const employee = answer.employee.split(" ");
   const manager = answer.manager.split(" ");
 
-  let query =
-    "update employee set manager_id = (select id from ( select * from employee) as t where first_name =? and last_name=?) where first_name=? and last_name=?";
+  let query = "update employee set manager_id = (select id from ( select * from employee) as t where first_name =? and last_name=?) where first_name=? and last_name=?";
   connection.query(
     query,
     [manager[0], manager[1], employee[0], employee[1]],
@@ -247,13 +246,12 @@ async function updateEmployeeRoleID(employeeList, roleList) {
     {
       name: "role",
       type: "list",
-      message: "What is this employee's role?",
+      message: "What is the employee's role?",
       choices: roleList,
     },
   ]);
   let employee = answer.employee.split(" ");
-  let query =
-    "update employee set role_id = (select id from role where title =?)  where first_name=? and last_name=?";
+  let query = "update employee set role_id = (select id from role where title =?)  where first_name=? and last_name=?";
   connection.query(query, [answer.role, employee[0], employee[1]], function (
     err,
     res
