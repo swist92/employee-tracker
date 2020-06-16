@@ -1,4 +1,2 @@
 # employee-tracker
 
-![] (GIFOne.gif)
-
